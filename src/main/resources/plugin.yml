@@ -1,4 +1,8 @@
 name: NanoMina
-version: '${project.version}'
+version: '1.0.0'
 main: com.plugin.NanoMina
 api-version: '1.19'
+commands:
+  mina:
+    description: Abre o menu da mina
+    usage: /<command>
