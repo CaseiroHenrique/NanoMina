@@ -2,7 +2,12 @@ name: NanoMina
 version: '1.0.0'
 main: com.plugin.NanoMina
 api-version: '1.19'
+
 commands:
   mina:
     description: Abre o menu da mina
+    usage: /<command>
+
+  minarestart:
+    description: Reinicia o plugin e atualiza as alterações de código
     usage: /<command>

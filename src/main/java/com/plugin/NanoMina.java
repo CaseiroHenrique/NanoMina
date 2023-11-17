@@ -1,5 +1,7 @@
 package com.plugin;
 
+import com.plugin.commands.MinaCommand;
+import com.plugin.commands.MinaRestart;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.WorldCreator;
@@ -21,7 +23,8 @@ public final class NanoMina extends JavaPlugin {
             Bukkit.unloadWorld("mina", false);
             deleteWorld(new File(Bukkit.getWorld("mina").getWorldFolder().getAbsolutePath()));
         }
-
+        this.getCommand("mina").setExecutor(new MinaCommand(this));
+        this.getCommand("minarestart").setExecutor(new MinaRestart(this));
         // Criar um novo mundo
         WorldCreator wc = new WorldCreator("mina");
         wc.generator(new CustomChunkGenerator());
