@@ -1,0 +1,4 @@
+name: NanoMina
+version: '${project.version}'
+main: com.plugin.NanoMina
+api-version: '1.19'
