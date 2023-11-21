@@ -5,9 +5,5 @@ api-version: '1.19'
 
 commands:
   mina:
-    description: Abre o menu da mina
-    usage: /<command>
-
-  minarestart:
-    description: Reinicia o plugin e atualiza as alterações de código
-    usage: /<command>
+    description: Teleporta o jogador para o mundo da mina
+    usage: /mina

@@ -14,16 +14,11 @@ public class MinaCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        // Verifica se quem enviou o comando é um jogador
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            // Obtenha o mundo "mina"
             World minaWorld = Bukkit.getWorld("mina");
             if (minaWorld != null) {
-                // Defina a localização segura para teleportar
-                // Aqui, você precisará de uma lógica para garantir que a localização seja segura
                 Location safeLocation = findSafeLocation(minaWorld);
-                // Teleporta o jogador para a localização segura
                 player.teleport(safeLocation);
                 player.sendMessage("Teleportado para o mundo da mina!");
             } else {
