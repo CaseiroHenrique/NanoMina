@@ -1,74 +1,77 @@
 package com.plugin.commands;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MinaCommand implements CommandExecutor {
 
-    private JavaPlugin plugin;
-
-    public MinaCommand(JavaPlugin plugin) {
-        this.plugin = plugin;
-        plugin.getCommand("mina").setExecutor(this);
-    }
-
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // Verifica se quem enviou o comando é um jogador
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            openMenu(player);
+            // Obtenha o mundo "mina"
+            World minaWorld = Bukkit.getWorld("mina");
+            if (minaWorld != null) {
+                // Defina a localização segura para teleportar
+                // Aqui, você precisará de uma lógica para garantir que a localização seja segura
+                Location safeLocation = findSafeLocation(minaWorld);
+                // Teleporta o jogador para a localização segura
+                player.teleport(safeLocation);
+                player.sendMessage("Teleportado para o mundo da mina!");
+            } else {
+                player.sendMessage("O mundo da mina não foi encontrado!");
+            }
+        } else {
+            sender.sendMessage("Somente jogadores podem usar esse comando!");
         }
         return true;
     }
 
-    @EventHandler
-    public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) return;
+    private Location findSafeLocation(World world) {
+        int startX = 0;
+        int startZ = 0;
+        int radius = 50;
 
-        InventoryView view = event.getView();
-        Inventory open = event.getClickedInventory();
-        if (open == null) return;
+        for (int x = startX - radius; x <= startX + radius; x++) {
+            for (int z = startZ - radius; z <= startZ + radius; z++) {
+                int y = world.getHighestBlockYAt(x, z);
 
-        if (open.getHolder() instanceof Player && open.getSize() == 27 && view.getTitle().equals("Menu da Mina")) {
-            event.setCancelled(true);
+                Location location = new Location(world, x + 0.5, y, z + 0.5);
+
+                if (isSafeLocation(location)) {
+                    return location;
+                }
+            }
         }
+
+        return new Location(world, startX + 0.5, world.getHighestBlockYAt(startX, startZ), startZ + 0.5);
     }
 
+    private boolean isSafeLocation(Location location) {
+        World world = location.getWorld();
+        if (world == null) {
+            return false;
+        }
 
-    private void openMenu(Player player) {
-        Inventory menu = Bukkit.createInventory(player, 27, "Menu da Mina");
+        Block feet = world.getBlockAt(location);
+        Block ground = world.getBlockAt(location.subtract(0, 1, 0));
+        Block head = world.getBlockAt(location.add(0, 1, 0));
 
-        ItemStack rank = new ItemStack(Material.DIAMOND);
-        ItemStack picareta = new ItemStack(Material.DIAMOND_PICKAXE);
-        ItemStack irParaMina = new ItemStack(Material.DIRT); // Usando terra como exemplo
-        ItemMeta irParaMinaMeta = irParaMina.getItemMeta();
-        irParaMinaMeta.setDisplayName(ChatColor.GREEN + "Ir para a mina");
-        List<String> irParaMinaLore = new ArrayList<>();
-        irParaMinaLore.add(ChatColor.GRAY + "Clique para ser teletransportado");
-        irParaMinaLore.add(ChatColor.GRAY + "para a mina.");
-        irParaMinaMeta.setLore(irParaMinaLore);
-        irParaMina.setItemMeta(irParaMinaMeta);
-
-        // Adicionar itens no inventário
-        menu.setItem(11, rank);
-        menu.setItem(13, picareta);
-        menu.setItem(15, irParaMina);
-
-        player.openInventory(menu);
+        return !feet.getType().isSolid() && !head.getType().isSolid() && isSafeGround(ground);
     }
+
+    private boolean isSafeGround(Block ground) {
+        Material groundType = ground.getType();
+        return groundType.isSolid() && groundType != Material.LAVA && groundType != Material.FIRE
+                && groundType != Material.CACTUS && !groundType.isBurnable();
+    }
+
 }
